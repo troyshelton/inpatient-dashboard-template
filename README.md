@@ -1,25 +1,36 @@
-# ER Tracking Dashboard Template
+# Inpatient Dashboard Template
 
-**Version:** v1.0.0-template
+**Version:** v1.0.0-inpatient
 **Type:** Generic Boilerplate
-**Last Updated:** 2025-12-13
-**Source:** Derived from sepsis-dashboard v1.48.0-sepsis
+**Last Updated:** 2025-12-14
+**Source:** Copied from er-tracking-dashboard-template v1.0.0
 
 ---
 
 ## Overview
 
-**Generic boilerplate for creating ER/ED clinical dashboards** with patient list and ER tracking board integration for Oracle Health Cerner MPages.
+**Generic boilerplate for creating inpatient floor/unit dashboards** with patient list integration for Oracle Health Cerner MPages.
 
 This template provides a proven, production-ready foundation with:
 - ✅ **Patient List Functionality** - All 7 list types supported
-- ✅ **ER Tracking Boards** - Direct ER census integration
 - ✅ **Service Architecture** - Proven patterns from production
 - ✅ **Demographics Display** - Clean 8-column patient info
 - ✅ **Mock Data Framework** - Test without Cerner
 - ✅ **12 Generic CCL Programs** - Reusable everywhere
+- ⏸️ **Inpatient Encounter Queries** - Phase 2 (see DIFFERENCES-FROM-ER-TEMPLATE.md)
 
-**Use this template to create:** Mobility, Respiratory, Cardiac, or any ER/ED specialty dashboard
+**Use this template to create:** Mobility, Med-Surg, Telemetry, or any inpatient floor/unit dashboard
+
+---
+
+## Differences from ER Template
+
+**Key Change Needed (Phase 2):**
+- **ER Unit Dropdown** → Will become **Nursing Unit/Floor Dropdown**
+- **Tracking Board Queries** → Will use **encounter_domain + encounter tables**
+- **New CCL Program** → `1_cust_mp_inp_get_encounters.prg` (to be created)
+
+**See:** `DIFFERENCES-FROM-ER-TEMPLATE.md` for complete details
 
 ---
 
@@ -32,7 +43,7 @@ This template provides a proven, production-ready foundation with:
 - `1_cust_mp_gen_get_pids.prg` - Get encounter IDs from list
 - `1_cust_mp_gen_get_pdata.prg` - Get demographics (114 lines)
 - `1_cust_mp_gen_user_info.prg` - Get user authentication
-- `1_cust_mp_gen_get_er_encntrs.prg` - Get ER tracking board
+- `1_cust_mp_gen_get_er_encntrs.prg` - ⚠️ ER-specific (will need inpatient version)
 
 **Patient List Types:**
 - `1_cust_mp_plst_custom.prg`, `plst_provgrp.prg`, `plst_cteam.prg`, `plst_census.prg`, `plst_query.prg`, `plst_reltn.prg`, `plst_assign.prg`
@@ -51,119 +62,87 @@ This template provides a proven, production-ready foundation with:
 
 ---
 
-## How to Use This Template
+## Current State (Phase 1)
 
-### Quick Start (3 Steps):
+**What Works Now:**
+- ✅ Patient list dropdown (all types)
+- ✅ Demographics display
+- ✅ Smooth Handsontable refresh
+- ✅ Loading messages in table
+- ✅ Simulator mode with mock data
+- ✅ SIMULATOR badge in header
 
-**1. Copy Template**
-```bash
-cp -r er-tracking-dashboard-template mobility-dashboard
-cd mobility-dashboard
-```
-
-**2. Extend CCL**
-Copy `gen_get_pdata.prg` → `mob_get_pdata_01.prg`, add domain queries
-
-**3. Add Columns**
-Update `main.js` columns array with your clinical data
-
----
-
-## Detailed Usage Guide
-
-### For Mobility Dashboard:
-
-**Step 1:** Copy and rename
-**Step 2:** Extend `gen_get_pdata.prg` with mobility queries (fall risk, devices, PT/OT)
-**Step 3:** Add mobility columns to main.js
-**Step 4:** Update services to call `mob_get_pdata_01`
-**Step 5:** Document and deploy
-
-### For Respiratory Dashboard:
-
-**Step 1:** Copy → `respiratory-dashboard`
-**Step 2:** Extend with vent settings, O2, RT interventions
-**Step 3:** Add respiratory columns
-**Step 4:** Use `resp_get_pdata_01`
-**Step 5:** Deploy
+**What Needs Implementation (Phase 2):**
+- ⏸️ Nursing unit/floor dropdown (replaces ER unit dropdown)
+- ⏸️ Inpatient encounter queries (encounter_domain + encounter tables)
+- ⏸️ New CCL program for inpatient encounters
+- ⏸️ Mock data for nursing units
 
 ---
 
-## What You DON'T Change
-
-**These 12 generic CCL programs work for ANY dashboard:**
-- All `gen_*` and `plst_*` programs
-- Compile once in Cerner, use everywhere!
-
-**Service architecture stays the same:**
-- PatientListService.js - unchanged
-- UserInfoService.js - unchanged
-- SendCclRequest.js - unchanged
-- Config.js - unchanged
-
----
-
-## Architecture
-
-**Data Flow:**
-```
-User selects patient list
-    ↓
-PatientListService.getPatientLists() [gen_get_plists]
-    ↓
-PatientListService.getPatientListPatients(listId)
-    ↓
-Step 1: gen_get_pids (get encounter IDs)
-    ↓
-Step 2: YOUR_get_pdata (get demographics + domain data)
-    ↓
-PatientDataService.processPatientData()
-    ↓
-Handsontable displays in table
-```
-
-**YOU only extend:** Step 2 (add domain queries to gen_get_pdata)
-
----
-
-## Testing
-
-**Simulator Mode Enabled** by default (`Config.js`)
+## Quick Start (Testing Current State)
 
 ```bash
 # Open in browser
 open src/web/index.html
 
-# Mock data loads automatically
-# Select "Demo Patient List A" or "Demo Patient List B"
-# See 8 demographics columns
-
-# Debug: Command+Shift+F
+# Test with patient lists (works now!)
+# ER unit dropdown (placeholder - will be replaced with nursing units)
 ```
 
 ---
 
-## Production Benefits
+## Phase 2: Inpatient Implementation
 
-**Proven:** Based on sepsis-dashboard v1.48.0 (live in production)
-**Fast:** Copy → Extend → Deploy (vs. build from scratch)
-**Consistent:** Same UX across all clinical dashboards
-**Maintainable:** Shared utilities, domain-specific extensions
+**When ready to add inpatient queries:**
+
+1. **Design nursing unit dropdown**
+   - Decide options (4 East, 3 West, ICU, etc.)
+   - Update HTML dropdown
+
+2. **Create inpatient CCL program**
+   - `1_cust_mp_inp_get_encounters.prg`
+   - Query encounter_domain and encounter tables
+   - Filter by nursing unit codes
+
+3. **Update services**
+   - Add `getInpatientUnitPatients()` method
+   - Update mock data for nursing units
+
+4. **Test and validate**
+   - Verify unit-specific patient lists
+   - Test with real data in CERT
 
 ---
 
-## Example Dashboards from Template
+## Comparison: ER vs Inpatient Queries
 
-**Created so far:**
-- Sepsis Dashboard v1.48.0 (production)
+**ER Template (Tracking Board):**
+```ccl
+SELECT FROM tracking_board
+WHERE tracking_group_cd = [ER facility code]
+```
 
-**Ready to create:**
-- Mobility Dashboard (from this template)
-- Respiratory Dashboard (from this template)
-- Cardiac Dashboard (from this template)
+**Inpatient (Direct Encounter - Phase 2):**
+```ccl
+SELECT FROM encounter e, encntr_domain ed
+WHERE ed.encntr_domain_cd = [inpatient domain]
+AND e.loc_nurse_unit_cd IN [nursing unit codes]
+```
 
 ---
 
-*Generic Boilerplate - Copy and Extend*
-*12 Reusable CCL Utilities*
-*Production-Proven Architecture*
+## Repository
+
+**GitHub:** https://github.com/troyshelton/inpatient-dashboard-template
+
+**Clone:**
+```bash
+git clone https://github.com/troyshelton/inpatient-dashboard-template.git
+```
+
+---
+
+*Generic Boilerplate - Ready for Inpatient Extensions*
+*Phase 1 Complete - Phase 2 Pending*
+*Based on ER Template v1.0.0*
