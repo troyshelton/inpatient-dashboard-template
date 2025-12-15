@@ -66,25 +66,18 @@
         theme: 'Material Design'
       }
     });
-    
-    // Hide by default for end users, show only when needed
+
+    // IMMEDIATELY hide and destroy entry button (before it can render)
     eruda.hide();
-    
-    // Destroy the Eruda entry button entirely using official API
-    setTimeout(function() {
-      try {
-        eruda.get('entryBtn').destroy();
-        console.log('Eruda entry button destroyed via API');
-      } catch (error) {
-        console.log('API destroy failed, trying hide:', error.message);
-        try {
-          eruda.get('entryBtn').hide();
-          console.log('Eruda entry button hidden via API');
-        } catch (hideError) {
-          console.log('Both destroy and hide failed:', hideError.message);
-        }
-      }
-    }, 50);
+
+    // Destroy entry button synchronously (no timeout delay)
+    try {
+      eruda.get('entryBtn').destroy();
+    } catch (e) {
+      try { eruda.get('entryBtn').hide(); } catch (e2) {}
+    }
+
+    console.log('Eruda entry button destroyed');
     
     // Track Eruda visibility state manually
     var erudaVisible = false;
